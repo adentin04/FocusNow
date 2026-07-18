@@ -1,7 +1,4 @@
-import json
-import os
-
-DATA_FILE = "data/tasks.json"
+import storage
 
 tasks = []
 
@@ -9,31 +6,21 @@ tasks = []
 
 def load_tasks():
     global tasks
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r") as f:
-            tasks = json.load(f)
-    else:
-        tasks = []
+    task_objects = storage.load_tasks_from_markdown(include_completed=False)
+    tasks = [task.title for task in task_objects]
 
 
-def save_tasks():
-    with open(DATA_FILE, "w") as f:
-        json.dump(tasks, f, indent=4)
-
-
-# ➕ Ajouter une tâche
 def add_task(task):
     task = task.strip()
     if task:
-        tasks.append(task)
-        save_tasks()
+        storage.append_task_to_markdown(task)
+        load_tasks()
 
 
 def remove_task(index):
-    if 0 <= index < len(tasks):
-        tasks.pop(index)
-        save_tasks()
+    if storage.remove_task_by_index(index, include_completed=False):
+        load_tasks()
 
 
 def get_tasks():
-    return tasks
+    return tasks.copy()

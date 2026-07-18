@@ -1,24 +1,38 @@
 import tkinter as tk
+from tkinter import messagebox
+
 import task_manager as tm
 
 
 def refresh_list():
     listbox.delete(0, tk.END)
-    for task in tm.get_tasks():
-        listbox.insert(tk.END, task)
+    try:
+        tm.load_tasks()
+        for task in tm.get_tasks():
+            listbox.insert(tk.END, task)
+    except Exception as error:
+        messagebox.showerror("Erreur de configuration", str(error))
 
 
 def add_task_UI():
-    tm.add_task(entry.get())
-    entry.delete(0, tk.END)
-    refresh_list()
+    try:
+        tm.add_task(entry.get())
+        entry.delete(0, tk.END)
+        refresh_list()
+    except Exception as error:
+        messagebox.showerror("Impossible d'ajouter", str(error))
 
 
 def remove_task_UI():
     selection = listbox.curselection()
-    if selection:
+    if not selection:
+        return
+
+    try:
         tm.remove_task(selection[0])
         refresh_list()
+    except Exception as error:
+        messagebox.showerror("Impossible de supprimer", str(error))
 
 
 root = tk.Tk()
